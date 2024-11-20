@@ -1,0 +1,13 @@
+﻿<div class="item grid">
+    <div class="poster">
+        <img src="#" alt="Poster" />
+    </div>
+    <div class="details">
+        <h5>@Movie.Title (@Movie.Year)</h5>
+        <p>@string.Join(", ", Movie.Genre)</p>
+        <p>@Movie.Runtime min</p>
+    </div>
+    <div class="actions">
+        <button class="btn btn-primary" @onclick="OnDetailsClick">Details</button>
+    </div>
+</div>

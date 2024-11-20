@@ -1,0 +1,23 @@
+﻿.item {
+    border: 1px solid #ccc;
+    padding: 10px;
+    background-color: #f0f0f0;
+}
+
+.item.grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px;
+}
+
+.poster {
+    grid-column: 1;
+}
+
+.details {
+    grid-column: 2;
+}
+
+.actions {
+    grid-column: 3;
+}

@@ -1,0 +1,26 @@
+﻿@page "/movies"
+
+<h1>Movies</h1>
+
+@if (Movies == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="d-flex flex-wrap vw-100">
+        @if (Movies.Count == 0)
+        {
+            <p><em>No movies found.</em></p>
+        }
+        else
+        {
+            <div class="item-list">
+                @foreach (var item in Movies)
+                {
+                    <MovieListItem Movie="item" OnDetails="NavigateToDetails" />                    
+                }
+            </div>
+        }
+    </div>
+}

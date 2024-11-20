@@ -10,6 +10,7 @@ global using AOKMovieLibrary.ProjectConfiguration;
 
 // Microsoft
 
+global using Microsoft.AspNetCore.Components;
 global using Microsoft.Extensions.DependencyInjection;
 global using System.ComponentModel.DataAnnotations;
 
