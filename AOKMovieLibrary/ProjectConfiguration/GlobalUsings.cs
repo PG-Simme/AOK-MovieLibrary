@@ -16,5 +16,6 @@ global using Microsoft.Extensions.DependencyInjection;
 global using System.ComponentModel.DataAnnotations;
 
 // Misc
+global using FluentValidation;
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("AOKMovieLibrary.Tests")]

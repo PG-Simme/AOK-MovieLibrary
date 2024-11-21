@@ -45,3 +45,24 @@ public static class CreateMovieCommandMapping
         };
     }
 }
+
+public class CreateMovieCommandValidator : AbstractValidator<CreateMovieCommand>
+{
+    public CreateMovieCommandValidator()
+    {
+        RuleFor(x => x.Title)
+            .NotEmpty().WithMessage("Title is required.");
+
+        RuleFor(x => x.Genre)
+            .IsInEnum().WithMessage("Genre is required and must be a valid value.");
+
+        RuleFor(x => x.Director)
+            .NotNull().WithMessage("Director information is required.");
+
+        RuleFor(x => x.Year)
+            .InclusiveBetween(1888, DateTime.Now.Year).WithMessage($"Year must be between 1888 and {DateTime.Now.Year}.");
+
+        RuleFor(x => x.Runtime)
+            .GreaterThan(0).WithMessage("Runtime must be greater than 0.");
+    }
+}
