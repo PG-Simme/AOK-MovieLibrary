@@ -13,6 +13,30 @@ public partial class MovieList
         Movies = (await _movieService.GetMoviesAsync()).Select(movie => movie.MapToMovieOverview()).ToList();
     }
 
+    private MovieGenre SelectedGenreFilter { get; set; }
+
+    private List<MovieOverviewData> FilteredMovies() {
+        if (SelectedGenreFilter == MovieGenre.None)
+        {
+            return Movies;
+        }
+
+        return Movies
+        .Where(m => m.Genre.HasFlag(SelectedGenreFilter))
+        .ToList();
+    }
+
+    private void OnGenreFilterChanged(ChangeEventArgs e)
+    {
+        if (string.IsNullOrEmpty(e.Value?.ToString()))
+        {
+            SelectedGenreFilter = MovieGenre.None;
+            return;
+        }
+
+        SelectedGenreFilter = Enum.Parse<MovieGenre>(e.Value.ToString());
+    }
+
     private void NavigateToDetails(MovieOverviewData movie)
     {
         // Navigate to the details page

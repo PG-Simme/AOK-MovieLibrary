@@ -8,6 +8,20 @@
 }
 else
 {
+    <div class="mb-3 d-flex justify-content-between align-items-center">
+        <!-- Filter Dropdown -->
+        <select @onchange="OnGenreFilterChanged" class="form-select w-auto">
+            <option value="">All Genres</option>
+            @foreach (var genre in Enum.GetValues<MovieGenre>())
+            {
+                if(genre == MovieGenre.None)
+                    continue;
+
+                <option value="@genre">@genre</option>
+            }
+        </select>
+    </div>
+
     <div class="d-flex flex-wrap vw-100">
         @if (Movies.Count == 0)
         {
@@ -16,9 +30,16 @@ else
         else
         {
             <div class="item-list">
-                @foreach (var item in Movies)
+                @if (FilteredMovies().Any())
                 {
-                    <MovieListItem Movie="item" OnDetails="NavigateToDetails" />                    
+                    @foreach (var movie in FilteredMovies())
+                    {
+                        <MovieListItem Movie="movie" OnDetails="NavigateToDetails" />
+                    }
+                }
+                else
+                {
+                    <p>No movies match the selected genre.</p>
                 }
             </div>
         }
