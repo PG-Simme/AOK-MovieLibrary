@@ -12,7 +12,7 @@ public interface IMovieService
 
     Task<MovieDetailData> GetMovieDetailsAsync(int id);
 
-    Task<Movie> CreateMovieAsync(Movie movie);
+    Task<Movie> CreateMovieAsync(CreateMovieCommand movie);
 
     Task<Movie> UpdateMovieAsync(Movie movie);
 

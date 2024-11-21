@@ -2,6 +2,8 @@
 
 public partial class MovieOverview
 {
+    [Inject] NavigationManager NavigationManager { get; set; } = null!;
+
     [Inject] MovieStateService MovieStateService { get; set; } = null!;
 
     [Inject] ProtectedLocalStorage ProtectedLocalStorage { get; set; } = null!;
@@ -50,4 +52,9 @@ public partial class MovieOverview
     //    await ProtectedSessionStorage.SetAsync(nameof(MovieGenre), genre);
     //    SelectedGenreFilter = genre;
     //}
+
+    private void NavigateToAddMovie()
+    {
+        NavigationManager.NavigateTo("/movie/add");
+    }
 }

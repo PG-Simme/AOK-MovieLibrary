@@ -131,19 +131,20 @@ public class MovieService : IMovieService
         return movie.MapToMovieDetails();
     }
 
-    public async Task<Movie> CreateMovieAsync(Movie movie)
+    public async Task<Movie> CreateMovieAsync(CreateMovieCommand movie)
     {
+        Movie newMovie = movie.MapToMovie();
         if (_movies.Count == 0)
         {
-            movie.Id = 0;
+            newMovie.Id = 0;
         }
         else
         {
-            movie.Id = _movies.Max(m => m.Id) + 1;
+            newMovie.Id = _movies.Max(m => m.Id) + 1;
         }
 
-        _movies.Add(movie);
-        return movie;
+        _movies.Add(newMovie);
+        return newMovie;
     }
 
     public async Task<Movie> UpdateMovieAsync(Movie movie)

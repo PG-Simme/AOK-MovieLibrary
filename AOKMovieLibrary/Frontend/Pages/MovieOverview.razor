@@ -6,9 +6,12 @@
     <div class="mb-3 d-flex justify-content-between align-items-center">
         <!-- Filter Dropdown -->
         <MovieFilter OnGenreFilterChanged="@OnGenreFilterChanged" />
+
+        <!-- Add Movie Button -->
+        <button class="btn btn-primary" @onclick="NavigateToAddMovie">Add Movie</button>
     </div>
 
-    <div class="d-flex flex-wrap vw-100">
+    <div class="d-flex flex-wrap">
         <MovieList />
     </div>
 </CascadingValue>

@@ -1,0 +1,43 @@
+﻿@page "/movie/add"
+
+<h1>Add Movie</h1>
+
+<EditForm Model="NewMovie" OnValidSubmit="OnAddMovie">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <label class="form-label">Title (*)</label>
+    <InputText class="form-control" @bind-Value="NewMovie.Title" />
+    <ValidationMessage For="@(() => NewMovie.Title)" />
+
+    <label class="form-label">Genre</label>
+    <InputSelect class="form-control" @bind-Value="NewMovie.Genre">
+        @foreach (var genre in Enum.GetNames<MovieGenre>())
+        {
+            <option value="@genre">@genre</option>
+        }
+    </InputSelect>
+
+    <label class="form-label">Year</label>
+    <InputNumber class="form-control" @bind-Value="NewMovie.Year" />
+    <ValidationMessage For="@(() => NewMovie.Year)" />
+
+    <label class="form-label">Director</label>
+    <InputSelect class="form-control" @bind-Value="SelectedDirectorId" @onchange="OnDirectorChanged">
+        @foreach (var director in AvailableDirectors)
+        {
+            <option value="@director.Id">@director</option>
+        }
+    </InputSelect>
+
+    <label class="form-label">Runtime (minutes)</label>
+    <InputNumber class="form-control" @bind-Value="NewMovie.Runtime" />
+    <ValidationMessage For="@(() => NewMovie.Runtime)" />
+
+    <label class="form-label">Description</label>
+    <InputText class="form-control" @bind-Value="NewMovie.Description" />
+    <ValidationMessage For="@(() => NewMovie.Description)" />
+
+    <button type="submit" class="btn btn-success">Add Movie</button>
+    <button type="button" class="btn btn-secondary" @onclick="NavigateBack">Cancel</button>
+</EditForm>
