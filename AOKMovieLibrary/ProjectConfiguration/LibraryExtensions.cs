@@ -8,6 +8,8 @@ public static class LibraryExtensions
         services.AddScoped<IMovieService, MovieService>();
         services.AddScoped<IPersonService, PersonService>();
 
+        services.AddScoped<MovieStateService>();
+
         return services;
     }
 }
