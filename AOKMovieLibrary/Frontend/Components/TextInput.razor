@@ -1,0 +1,30 @@
+﻿@using System.Linq.Expressions
+@inherits InputText
+<div class="mb-3">
+    <label class="form-label">@Label</label>
+    @* <input type="text" class="form-control" @bind="@Value" /> *@
+    @* <input type="text" class="form-control" value="@Value" @onchange="OnValueChanged" /> *@
+    <input type="text" class="form-control" @bind="@Value" @bind:event="oninput" />
+    @* <input type="text" class="form-control" @bind:get="Value" @bind:set="OnValueChanged" /> *@
+</div>
+
+@code {
+    [Parameter]
+    public string Label { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Value { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+
+    private async Task OnValueChanged(ChangeEventArgs e)
+    {
+        await ValueChanged.InvokeAsync(e.Value?.ToString());
+    }
+
+    private async Task OnValueChanged(string? e)
+    {
+        await ValueChanged.InvokeAsync(e?.ToString());
+    }
+}

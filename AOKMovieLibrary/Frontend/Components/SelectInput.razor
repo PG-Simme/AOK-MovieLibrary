@@ -1,0 +1,39 @@
+﻿@typeparam T
+
+<div class="mb-3">
+    <label class="form-label">@Label</label>
+    <select class="form-select" value="@(SelectedItem?.ToString())" @onchange="OnSelectedItemChanged">
+        @foreach (var item in Options)
+        {
+            <option value="@item">@DisplaySelector(item)</option>
+        }
+    </select>
+</div>
+
+@code {
+    [Parameter]
+    public string Label { get; set; } = string.Empty;
+
+    [Parameter]
+    public IEnumerable<T> Options { get; set; } = Enumerable.Empty<T>();
+
+    [Parameter]
+    public T SelectedItem { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback<T> SelectedItemChanged { get; set; }
+
+    [Parameter]
+    public Func<T, string> DisplaySelector { get; set; } = default!;
+
+    private async Task OnSelectedItemChanged(ChangeEventArgs e)
+    {
+        string? selectedValue = e.Value?.ToString();
+        T? matchingItem = Options.FirstOrDefault(item => DisplaySelector(item) == selectedValue);
+
+        if (matchingItem != null)
+        {
+            await SelectedItemChanged.InvokeAsync(matchingItem);
+        }
+    }
+}
