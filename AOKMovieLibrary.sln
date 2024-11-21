@@ -5,7 +5,7 @@ VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AOKMovieLibrary", "AOKMovieLibrary\AOKMovieLibrary.csproj", "{166669F9-0A38-4DDA-8CDC-F89796C8B7F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AOKMovieLibrary.Tests", "AOKMovieLibrary.Tests\AOKMovieLibrary.Tests.csproj", "{1A853438-50DC-4538-8D65-CB12EF0C5DC9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AOKMovieLibrary.Tests", "AOKMovieLibrary.Tests\AOKMovieLibrary.Tests.csproj", "{1A853438-50DC-4538-8D65-CB12EF0C5DC9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

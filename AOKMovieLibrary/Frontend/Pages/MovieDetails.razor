@@ -1,0 +1,25 @@
+﻿@page "/movie/{id:int}"
+
+@if (_movieDetails != null)
+{
+    <div class="card" style="margin: 20px; padding: 20px;">
+        <h1>@_movieDetails.Title</h1>
+        <LabeledDisplay Label="Genre" Value="@_movieDetails.Genre.ToString()" />
+        <LabeledDisplay Label="Year" Value="@_movieDetails.Year.ToString()" />
+        <LabeledDisplay Label="Director" Value="@_movieDetails.Director.ToString()" />
+        <LabeledDisplay Label="Runtime" Value="@(_movieDetails.Runtime.ToString() + " minutes")" />
+        <h3>Actors:</h3>
+        <ul>
+            @foreach (var actor in _movieDetails.Actors)
+            {
+                <li>@actor</li>
+            }
+        </ul>
+        <LabeledDisplay Label="Description" Value="@_movieDetails.Description" />
+        <button class="btn btn-secondary" @onclick="GoBack">Back to List</button>
+    </div>
+}
+else
+{
+    <p>Loading...</p>
+}

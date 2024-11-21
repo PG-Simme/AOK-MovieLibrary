@@ -2,6 +2,8 @@
 
 public partial class MovieList
 {
+    [Inject] NavigationManager NavigationManager { get; set; } = null!;
+
     [Inject] private IMovieService _movieService { get; set; } = null!;
 
     [Parameter] public List<MovieOverviewData> Movies { get; set; } = new();
@@ -14,6 +16,6 @@ public partial class MovieList
     private void NavigateToDetails(MovieOverviewData movie)
     {
         // Navigate to the details page
-        Console.WriteLine($"Navigating to details for movie {movie.Title}");
+        NavigationManager.NavigateTo($"/movie/{movie.Id}");
     }
 }
