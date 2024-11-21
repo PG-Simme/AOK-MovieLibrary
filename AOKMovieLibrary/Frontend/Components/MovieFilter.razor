@@ -1,0 +1,10 @@
+﻿<select value="@GenreFilter.ToString()" @onchange="GenreFilterChanged" class="form-select w-auto">
+    <option value="">All Genres</option>
+    @foreach (var genre in Enum.GetValues<MovieGenre>())
+    {
+        if (genre == MovieGenre.None)
+            continue;
+
+        <option value="@genre">@genre</option>
+    }
+</select>

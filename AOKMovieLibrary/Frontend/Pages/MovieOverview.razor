@@ -1,0 +1,14 @@
+﻿@page "/movies"
+
+<h1>Movies</h1>
+
+<CascadingValue Value="@SelectedGenreFilter">
+    <div class="mb-3 d-flex justify-content-between align-items-center">
+        <!-- Filter Dropdown -->
+        <MovieFilter OnGenreFilterChanged="@OnGenreFilterChanged" />
+    </div>
+
+    <div class="d-flex flex-wrap vw-100">
+        <MovieList />
+    </div>
+</CascadingValue>

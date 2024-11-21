@@ -1,0 +1,27 @@
+﻿@if (Movies == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    @if (Movies.Count == 0)
+    {
+        <p><em>No movies found.</em></p>
+    }
+    else
+    {
+        <div class="item-list">
+            @if (FilteredMovies().Any())
+            {
+                @foreach (var movie in FilteredMovies())
+                {
+                    <MovieListItem Movie="movie" OnDetails="NavigateToDetails" />
+                }
+            }
+            else
+            {
+                <p>No movies match the selected genre.</p>
+            }
+        </div>
+    }
+}
