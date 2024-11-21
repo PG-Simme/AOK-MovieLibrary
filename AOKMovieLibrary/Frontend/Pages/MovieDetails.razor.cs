@@ -2,6 +2,8 @@
 
 public partial class MovieDetails
 {
+    [Inject] private NavigationManager NavigationManager { get; set; } = null!;
+
     [Inject] private IMovieService _movieService { get; set; } = null!;
 
     [Parameter]
