@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-
-namespace AOKMovieLibrary.Frontend.Pages;
+﻿namespace AOKMovieLibrary.Frontend.Pages;
 
 public partial class AddMovie
 {
@@ -13,8 +11,7 @@ public partial class AddMovie
     private CreateMovieCommand NewMovie = new()
     {
         Genre = MovieGenre.Action,
-        Director = new PersonMetaData(),
-        Actors = new List<PersonMetaData>()
+        Actors = []
     };
 
     private string SelectedGenre
@@ -34,19 +31,21 @@ public partial class AddMovie
             Firstname = person.Firstname,
             Lastname = person.Lastname
         });
+
+        SelectedDirectorId = AvailableDirectors.FirstOrDefault()?.Id ?? 0;
     }
 
     private int SelectedDirectorId
     {
-        get => NewMovie.Director?.Id ?? 0;
-        set => NewMovie.Director = AvailableDirectors.FirstOrDefault(d => d.Id == value);
+        get => NewMovie.DirectorId;
+        set => NewMovie.DirectorId = value;
     }
 
     private void OnDirectorChanged(ChangeEventArgs e)
     {
         if (int.TryParse(e.Value.ToString(), out int directorId))
         {
-            NewMovie.Director = AvailableDirectors.FirstOrDefault(d => d.Id == directorId);
+            NewMovie.DirectorId = directorId;
         }
     }
 
@@ -55,9 +54,10 @@ public partial class AddMovie
         NavigationManager.NavigateTo("/movies");
     }
 
-    private void OnAddMovie()
+    private async Task OnAddMovie()
     {
-        _movieService.CreateMovieAsync(NewMovie);
+        await _movieService.CreateMovieAsync(NewMovie);
+        StateHasChanged();
         NavigationManager.NavigateTo("/movies");
     }
 }

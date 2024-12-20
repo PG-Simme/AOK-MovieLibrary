@@ -1,22 +1,34 @@
-﻿namespace AOKMovieLibrary.Implementations;
+﻿using AOKMovieLibrary.Abstractions;
+using Microsoft.EntityFrameworkCore;
+
+namespace AOKMovieLibrary.Implementations;
 
 public class PersonService : IPersonService
 {
-    private List<Person> _persons = [];
+    private readonly IDbContextFactory<MovieContext> _contextFactory;
+
+    public PersonService(IDbContextFactory<MovieContext> contextFactory)
+    {
+        _contextFactory = contextFactory;
+    }
 
     public void SeedData(IEnumerable<Person> persons)
     {
-        _persons = persons.ToList();
+        using var context = _contextFactory.CreateDbContext();
+        context.Persons.AddRange(persons);
+        context.SaveChanges();
     }
 
     public async Task<List<Person>> GetPersonsAsync()
     {
-        return _persons;
+        using var context = _contextFactory.CreateDbContext();
+        return await context.Persons.ToListAsync();
     }
 
     public async Task<Person> GetPersonAsync(int id)
     {
-        var person = _persons.FirstOrDefault(p => p.Id == id);
+        using var context = _contextFactory.CreateDbContext();
+        var person = await context.Persons.FirstOrDefaultAsync(p => p.Id == id);
 
         if (person == null)
         {
@@ -28,22 +40,17 @@ public class PersonService : IPersonService
 
     public async Task<Person> CreatePersonAsync(Person person)
     {
-        if (_persons.Count == 0)
-        {
-            person.Id = 0;
-        }
-        else
-        {
-            person.Id = _persons.Max(p => p.Id) + 1;
-        }
+        using var context = _contextFactory.CreateDbContext();
+        context.Persons.Add(person);
+        await context.SaveChangesAsync();
 
-        _persons.Add(person);
         return person;
     }
 
     public async Task<Person> UpdatePersonAsync(Person person)
     {
-        var existingPerson = _persons.FirstOrDefault(p => p.Id == person.Id);
+        using var context = _contextFactory.CreateDbContext();
+        var existingPerson = await context.Persons.FirstOrDefaultAsync(p => p.Id == person.Id);
 
         if (existingPerson == null)
         {
@@ -53,15 +60,22 @@ public class PersonService : IPersonService
         existingPerson.Firstname = person.Firstname;
         existingPerson.Lastname = person.Lastname;
 
+        await context.SaveChangesAsync();
+
         return existingPerson;
     }
 
     public async Task DeletePersonAsync(int id)
     {
-        var person = _persons.FirstOrDefault(p => p.Id == id);
-        if (person != null)
+        using var context = _contextFactory.CreateDbContext();
+        var person = await context.Persons.FirstOrDefaultAsync(p => p.Id == id);
+
+        if (person == null)
         {
-            _persons.Remove(person);
+            throw new InvalidOperationException($"Person with id {id} not found");
         }
+
+        context.Persons.Remove(person);
+        await context.SaveChangesAsync();
     }
 }

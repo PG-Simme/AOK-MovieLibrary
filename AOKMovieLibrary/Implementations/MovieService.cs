@@ -1,115 +1,45 @@
-﻿namespace AOKMovieLibrary.Implementations;
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace AOKMovieLibrary.Implementations;
 
 public class MovieService : IMovieService
 {
-    private List<Movie> _movies = [];
+    private readonly IDbContextFactory<MovieContext> _contextFactory;
 
-    public MovieService(IPersonService personService)
+    public MovieService(IPersonService personService, IDbContextFactory<MovieContext> contextFactory)
     {
-        var persons = new List<Person>
-        {
-            new Person { Id = 1, Firstname = "Christopher", Lastname = "Nolan" },
-            new Person { Id = 2, Firstname = "Leonardo", Lastname = "DiCaprio" },
-            new Person { Id = 3, Firstname = "Joseph", Lastname = "Gordon-Levitt" },
-            new Person { Id = 4, Firstname = "Ellen", Lastname = "Page" },
-            new Person { Id = 5, Firstname = "Lana", Lastname = "Wachowski" },
-            new Person { Id = 6, Firstname = "Keanu", Lastname = "Reeves" },
-            new Person { Id = 7, Firstname = "Laurence", Lastname = "Fishburne" },
-            new Person { Id = 8, Firstname = "Carrie-Anne", Lastname = "Moss" },
-            new Person { Id = 9, Firstname = "Francis", Lastname = "Coppola" },
-            new Person { Id = 10, Firstname = "Marlon", Lastname = "Brando" },
-            new Person { Id = 11, Firstname = "Al", Lastname = "Pacino" },
-            new Person { Id = 12, Firstname = "James", Lastname = "Caan" },
-            new Person { Id = 13, Firstname = "Quentin", Lastname = "Tarantino" },
-            new Person { Id = 14, Firstname = "John", Lastname = "Travolta" },
-            new Person { Id = 15, Firstname = "Uma", Lastname = "Thurman" },
-            new Person { Id = 16, Firstname = "Samuel", Lastname = "Jackson" },
-            new Person { Id = 17, Firstname = "Frank", Lastname = "Darabont" },
-            new Person { Id = 18, Firstname = "Tim", Lastname = "Robbins" },
-            new Person { Id = 19, Firstname = "Morgan", Lastname = "Freeman" },
-            new Person { Id = 20, Firstname = "Bob", Lastname = "Gunton" }
-        };
-
-        personService.SeedData(persons);
-
-        _movies = new List<Movie>
-        {
-            new Movie
-            {
-                Id = 1,
-                Title = "Inception",
-                Genre = MovieGenre.SciFi | MovieGenre.Action,
-                Year = 2010,
-                Director = persons.First(p => p.Id == 1),
-                Actors = persons.Where(p => new[] { 2, 3, 4 }.Contains(p.Id)).ToList(),
-                Description = "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.",
-                Runtime = 148
-            },
-            new Movie
-            {
-                Id = 2,
-                Title = "The Matrix",
-                Genre = MovieGenre.SciFi | MovieGenre.Action,
-                Year = 1999,
-                Director = persons.First(p => p.Id == 5),
-                Actors = persons.Where(p => new[] { 6, 7, 8 }.Contains(p.Id)).ToList(),
-                Description = "A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers.",
-                Runtime = 136
-            },
-            new Movie
-            {
-                Id = 3,
-                Title = "The Godfather",
-                Genre = MovieGenre.Drama | MovieGenre.Crime,
-                Year = 1972,
-                Director = persons.First(p => p.Id == 9),
-                Actors = persons.Where(p => new[] { 10, 11, 12 }.Contains(p.Id)).ToList(),
-                Description = "The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.",
-                Runtime = 175
-            },
-            new Movie
-            {
-                Id = 4,
-                Title = "Pulp Fiction",
-                Genre = MovieGenre.Drama | MovieGenre.Crime,
-                Year = 1994,
-                Director = persons.First(p => p.Id == 13),
-                Actors = persons.Where(p => new[] { 14, 15, 16 }.Contains(p.Id)).ToList(),
-                Description = "The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine in four tales of violence and redemption.",
-                Runtime = 154
-            },
-            new Movie
-            {
-                Id = 5,
-                Title = "The Shawshank Redemption",
-                Genre = MovieGenre.Drama,
-                Year = 1994,
-                Director = persons.First(p => p.Id == 17),
-                Actors = persons.Where(p => new[] { 18, 19, 20 }.Contains(p.Id)).ToList(),
-                Description = "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
-                Runtime = 142
-            }
-        };
+        _contextFactory = contextFactory;
     }
 
     public void SeedData(IEnumerable<Movie> movies)
     {
-        _movies = movies.ToList();
+        using var context = _contextFactory.CreateDbContext();
+        context.Movies.AddRange(movies);
+        context.SaveChanges();
     }
 
     public async Task<List<Movie>> GetMoviesAsync()
     {
-        return _movies;
+        using var context = _contextFactory.CreateDbContext();
+        return await context.Movies.ToListAsync();
     }
 
     public async Task<List<MovieOverviewData>> GetMoviesForOverviewAsync()
     {
-        return _movies.Select(m => m.MapToMovieOverview()).ToList();
+        using var context = _contextFactory.CreateDbContext();
+        var movies = await context.Movies.Include(m => m.Director)
+                                         .Include(m => m.Actors)
+                                         .ToListAsync();
+
+        return movies.Select(m => m.MapToMovieOverview()).ToList();
     }
 
     public async Task<Movie> GetMovieAsync(int id)
     {
-        var movie = _movies.FirstOrDefault(m => m.Id == id);
+        using var context = _contextFactory.CreateDbContext();
+        var movie = await context.Movies.Include(m => m.Director)
+                                         .Include(m => m.Actors)
+                                         .FirstOrDefaultAsync(m => m.Id == id);
 
         if (movie == null)
         {
@@ -121,7 +51,10 @@ public class MovieService : IMovieService
 
     public async Task<MovieDetailData> GetMovieDetailsAsync(int id)
     {
-        var movie = _movies.FirstOrDefault(m => m.Id == id);
+        using var context = _contextFactory.CreateDbContext();
+        var movie = await context.Movies.Include(m => m.Director)
+                                         .Include(m => m.Actors)
+                                         .FirstOrDefaultAsync(m => m.Id == id);
 
         if (movie == null)
         {
@@ -134,22 +67,43 @@ public class MovieService : IMovieService
     public async Task<Movie> CreateMovieAsync(CreateMovieCommand movie)
     {
         Movie newMovie = movie.MapToMovie();
-        if (_movies.Count == 0)
-        {
-            newMovie.Id = 0;
-        }
-        else
-        {
-            newMovie.Id = _movies.Max(m => m.Id) + 1;
-        }
 
-        _movies.Add(newMovie);
-        return newMovie;
+        try
+        {
+            using var context = _contextFactory.CreateDbContext();
+
+            var director = await context.Persons.FirstOrDefaultAsync(p => p.Id == movie.DirectorId);
+            if (director == null)
+            {
+                throw new InvalidOperationException($"Director with id {movie.DirectorId} not found");
+            }
+
+            newMovie.Director = director;
+            newMovie.DirectorId = director.Id;
+
+            var actors = await context.Persons.Where(p => movie.Actors.Contains(p.Id)).ToListAsync();
+            if (actors.Count != movie.Actors.Count)
+            {
+                throw new InvalidOperationException("One or more actors not found");
+            }
+
+            newMovie.Actors = actors;
+
+            context.Movies.Add(newMovie);
+            await context.SaveChangesAsync();
+            return newMovie;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return null;
+        }
     }
 
     public async Task<Movie> UpdateMovieAsync(Movie movie)
     {
-        var existingMovie = _movies.FirstOrDefault(m => m.Id == movie.Id);
+        using var context = _contextFactory.CreateDbContext();
+        var existingMovie = context.Movies.FirstOrDefault(m => m.Id == movie.Id);
 
         if (existingMovie == null)
         {
@@ -164,15 +118,21 @@ public class MovieService : IMovieService
         existingMovie.Description = movie.Description;
         existingMovie.Runtime = movie.Runtime;
 
+        // alternative way to update entity
+        //context.Entry(existingMovie).CurrentValues.SetValues(movie);
+
+        await context.SaveChangesAsync();
+
         return existingMovie;
     }
 
     public async Task DeleteMovieAsync(int id)
     {
-        var movie = _movies.FirstOrDefault(m => m.Id == id);
+        using var context = _contextFactory.CreateDbContext();
+        var movie = await context.Movies.FirstOrDefaultAsync(m => m.Id == id);
         if (movie != null)
         {
-            _movies.Remove(movie);
+            context.Movies.Remove(movie);
         }
     }
 }

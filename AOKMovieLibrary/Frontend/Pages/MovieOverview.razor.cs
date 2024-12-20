@@ -19,22 +19,22 @@ public partial class MovieOverview
         //SelectedGenreFilter = MovieStateService.CurrentGenreFilter;
 
         // use local storage if prefered
-        //var genre = await ProtectedSessionStorage.GetAsync<MovieGenre>(nameof(MovieGenre));
+        var genre = await ProtectedSessionStorage.GetAsync<MovieGenre>(nameof(MovieGenre));
 
-        //if (!genre.Success || genre.Value == MovieGenre.None)
-        //{
-        //    SelectedGenreFilter = MovieGenre.None;
-        //}
+        if (!genre.Success || genre.Value == MovieGenre.None)
+        {
+            SelectedGenreFilter = MovieGenre.None;
+        }
 
-        //SelectedGenreFilter = genre.Value;
+        SelectedGenreFilter = genre.Value;
     }
 
     // Component specific filtering
 
-    private void OnGenreFilterChanged(MovieGenre genre)
-    {
-        SelectedGenreFilter = genre;
-    }
+    //private void OnGenreFilterChanged(MovieGenre genre)
+    //{
+    //    SelectedGenreFilter = genre;
+    //}
 
     // State service filtering
 
@@ -44,14 +44,14 @@ public partial class MovieOverview
     //    SelectedGenreFilter = genre;
     //}
 
-    // Storage/Session specific filtering
+    //Storage/Session specific filtering
 
-    //private async Task OnGenreFilterChanged(MovieGenre genre)
-    //{
-    //    // use local storage if prefered
-    //    await ProtectedSessionStorage.SetAsync(nameof(MovieGenre), genre);
-    //    SelectedGenreFilter = genre;
-    //}
+    private async Task OnGenreFilterChanged(MovieGenre genre)
+    {
+        // use local storage if prefered
+        await ProtectedSessionStorage.SetAsync(nameof(MovieGenre), genre);
+        SelectedGenreFilter = genre;
+    }
 
     private void NavigateToAddMovie()
     {

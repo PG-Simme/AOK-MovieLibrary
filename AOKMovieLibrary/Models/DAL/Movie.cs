@@ -10,6 +10,8 @@ public class Movie
 
     public int Year { get; set; }
 
+    public int DirectorId { get; set; }
+
     public Person Director { get; set; }
 
     public List<Person> Actors { get; set; }

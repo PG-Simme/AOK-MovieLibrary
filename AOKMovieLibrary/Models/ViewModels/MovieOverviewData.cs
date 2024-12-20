@@ -29,8 +29,10 @@ public static class MovieOverviewMapping
             Title = movie.Title,
             Genre = movie.Genre,
             Year = movie.Year,
-            Director = movie.Director.MapToPersonMetaData(),
-            Actors = movie.Actors.Select(a => a.MapToPersonMetaData()).ToList(),
+            Director = new(),
+            Actors = [],
+            //Director = movie.Director.MapToPersonMetaData(),
+            //Actors = movie.Actors.Select(a => a.MapToPersonMetaData()).ToList(),
             Description = movie.Description,
             Runtime = movie.Runtime
         };

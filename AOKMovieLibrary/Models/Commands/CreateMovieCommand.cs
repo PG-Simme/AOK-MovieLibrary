@@ -8,9 +8,9 @@ public class CreateMovieCommand
     [Required]
     public MovieGenre Genre { get; set; }
 
-    public PersonMetaData Director { get; set; } = new();
+    public int DirectorId { get; set; } = new();
 
-    public List<PersonMetaData> Actors { get; set; } = new();
+    public List<int> Actors { get; set; } = new();
 
     public int Year { get; set; }
 
@@ -27,18 +27,6 @@ public static class CreateMovieCommandMapping
         {
             Title = command.Title,
             Genre = command.Genre,
-            Director = new Person
-            {
-                Id = command.Director.Id,
-                Firstname = command.Director.Firstname,
-                Lastname = command.Director.Lastname
-            },
-            Actors = command.Actors.Select(actor => new Person
-            {
-                Id = actor.Id,
-                Firstname = actor.Firstname,
-                Lastname = actor.Lastname
-            }).ToList(),
             Year = command.Year,
             Runtime = command.Runtime,
             Description = command.Description
@@ -56,7 +44,7 @@ public class CreateMovieCommandValidator : AbstractValidator<CreateMovieCommand>
         RuleFor(x => x.Genre)
             .IsInEnum().WithMessage("Genre is required and must be a valid value.");
 
-        RuleFor(x => x.Director)
+        RuleFor(x => x.DirectorId)
             .NotNull().WithMessage("Director information is required.");
 
         RuleFor(x => x.Year)
