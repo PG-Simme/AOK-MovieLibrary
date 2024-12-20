@@ -1,10 +1,18 @@
 using AOKMovieLibrary.Frontend;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddDbContextFactory<MovieContext>(options =>
+{
+    options.UseSqlServer(
+        "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=\"AOK MovieLibrary\";Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False",
+        o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+});
 
 // Add services to the container from the library project
 builder.Services.AddLibraryServices();
