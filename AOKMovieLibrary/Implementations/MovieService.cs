@@ -97,34 +97,55 @@ public class MovieService : IMovieService
     public async Task<MovieDetailData> UpdateMovieAsync(UpdateMovieCommand movie)
     {
         using var context = _contextFactory.CreateDbContext();
-        var existingMovie = context.Movies.FirstOrDefault(m => m.Id == movie.Id);
+        using var transaction = await context.Database.BeginTransactionAsync();
 
-        if (existingMovie == null)
+        try
         {
-            throw new InvalidOperationException($"Movie with id {movie.Id} not found");
+            var existingMovie = await context.Movies.FirstOrDefaultAsync(m => m.Id == movie.Id);
+
+            if (existingMovie == null)
+            {
+                throw new InvalidOperationException($"Movie with id {movie.Id} not found");
+            }
+
+            existingMovie.Title = movie.Title;
+            existingMovie.Genre = movie.Genre;
+            existingMovie.Year = movie.Year;
+            existingMovie.Description = movie.Description;
+            existingMovie.Runtime = movie.Runtime;
+
+            // alternative way to update entity
+            //context.Entry(existingMovie).CurrentValues.SetValues(movie);
+
+            await context.SaveChangesAsync();
+
+            var director = await context.Persons.FirstOrDefaultAsync(p => p.Id == movie.DirectorId);
+            if (director == null)
+            {
+                throw new InvalidOperationException($"Director with id {movie.DirectorId} not found");
+            }
+
+            existingMovie.DirectorId = movie.DirectorId;
+            existingMovie.Actors = await context.Persons.Where(p => movie.Actors.Contains(p.Id)).ToListAsync();
+
+            // bewusstes Ändern des Nachnamens des Regisseurs
+            // TODO: Außerhalb der Übung nicht verwenden
+            director.Lastname = "Mustermann";
+
+            context.Update(existingMovie);
+            await context.SaveChangesAsync();
+
+            throw new OperationCanceledException("Dummy Exception: Bitte löschen");
+
+            await transaction.CommitAsync();
+
+            return existingMovie.MapToMovieDetails();
         }
-
-        existingMovie.Title = movie.Title;
-        existingMovie.Genre = movie.Genre;
-        existingMovie.Year = movie.Year;
-        existingMovie.Description = movie.Description;
-        existingMovie.Runtime = movie.Runtime;
-
-        // alternative way to update entity
-        //context.Entry(existingMovie).CurrentValues.SetValues(movie);
-
-        var director = await context.Persons.FirstOrDefaultAsync(p => p.Id == movie.DirectorId);
-        if (director == null)
+        catch (OperationCanceledException)
         {
-            throw new InvalidOperationException($"Director with id {movie.DirectorId} not found");
+            await transaction.RollbackAsync();
+            return new MovieDetailData();
         }
-
-        existingMovie.DirectorId = movie.DirectorId;
-        existingMovie.Actors = await context.Persons.Where(p => movie.Actors.Contains(p.Id)).ToListAsync();
-
-        await context.SaveChangesAsync();
-
-        return existingMovie.MapToMovieDetails();
     }
 
     public async Task DeleteMovieAsync(int id)
