@@ -17,6 +17,8 @@ public record MovieOverviewData
     public string? Description { get; set; }
 
     public int Runtime { get; set; }
+
+    public byte[] RowVersion { get; set; }
 }
 
 public static class MovieOverviewMapping
@@ -32,7 +34,8 @@ public static class MovieOverviewMapping
             Director = movie.Director?.MapToPersonMetaData() ?? new(),
             Actors = movie.Actors?.Select(a => a.MapToPersonMetaData()).ToList() ?? [],
             Description = movie.Description,
-            Runtime = movie.Runtime
+            Runtime = movie.Runtime,
+            RowVersion = movie.RowVersion
         };
     }
 }

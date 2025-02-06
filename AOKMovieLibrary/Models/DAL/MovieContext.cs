@@ -28,6 +28,7 @@ public class MovieContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Firstname).HasMaxLength(50);
             entity.Property(e => e.Lastname).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.RowVersion).IsRowVersion();
             entity.HasData(
                 new Person { Id = 1, Firstname = "Christopher", Lastname = "Nolan" },
                 new Person { Id = 2, Firstname = "Leonardo", Lastname = "DiCaprio" },
@@ -59,6 +60,7 @@ public class MovieContext : DbContext
             entity.Property(e => e.Year).IsRequired();
             entity.Property(e => e.Description).HasMaxLength(500);
             entity.Property(e => e.Runtime).IsRequired();
+            entity.Property(e => e.RowVersion).IsRowVersion();
 
             entity.HasOne(e => e.Director)
                   .WithMany()

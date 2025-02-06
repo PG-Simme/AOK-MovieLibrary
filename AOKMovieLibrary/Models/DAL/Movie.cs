@@ -19,6 +19,9 @@ public class Movie
     public string? Description { get; set; }
 
     public int Runtime { get; set; }
+
+    [Timestamp]
+    public byte[] RowVersion { get; set; }
 }
 
 [Flags]

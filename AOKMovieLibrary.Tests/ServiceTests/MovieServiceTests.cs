@@ -1,4 +1,7 @@
-﻿namespace MovieLibrary.Tests.ServiceTests;
+﻿using AOKMovieLibrary.Models.Commands;
+using AOKMovieLibrary.Models.DAL;
+
+namespace MovieLibrary.Tests.ServiceTests;
 
 public class MovieServiceTests : IClassFixture<ServiceFixture>
 {
@@ -76,11 +79,20 @@ public class MovieServiceTests : IClassFixture<ServiceFixture>
         // Arrange
         var movieList = MovieFactory.CreateValidMovie().Generate(10);
         _movieService.SeedData(movieList);
-        var movie = await _movieService.GetMovieAsync(0);
-        movie.Title = "Updated Movie";
+        var movie = await _movieService.GetMovieDetailsAsync(0);
+
+        UpdateMovieCommand updateMovie = new UpdateMovieCommand
+        {
+            Id = movie.Id,
+            Title = "Updated Movie",
+            Description = movie.Description,
+            Genre = movie.Genre,
+            DirectorId = movie.Director.Id,
+            Actors = movie.Actors.Select(a => a.Id).ToList()
+        };
 
         // Act
-        var updatedMovie = await _movieService.UpdateMovieAsync(movie);
+        var updatedMovie = await _movieService.UpdateMovieAsync(updateMovie);
 
         // Assert
         Assert.NotNull(movie);
@@ -99,11 +111,20 @@ public class MovieServiceTests : IClassFixture<ServiceFixture>
         // Arrange
         var nonExistentMovie = MovieFactory.CreateValidMovie().Generate();
         //nonExistentMovie = await _movieService.CreateMovieAsync(nonExistentMovie);
-        var updatedMovie = MovieFactory.CreateValidMovie().Generate();
-        updatedMovie.Id = 999;
+        var movie = MovieFactory.CreateValidMovie().Generate();
+
+        UpdateMovieCommand updateMovie = new UpdateMovieCommand
+        {
+            Id = 999,
+            Title = "Updated Movie",
+            Description = movie.Description,
+            Genre = movie.Genre,
+            DirectorId = movie.Director.Id,
+            Actors = movie.Actors.Select(a => a.Id).ToList()
+        };
 
         // Act
-        Task updateMovieTask = _movieService.UpdateMovieAsync(updatedMovie);
+        Task updateMovieTask = _movieService.UpdateMovieAsync(updateMovie);
 
         // Assert
         await Assert.ThrowsAsync<InvalidOperationException>(() => updateMovieTask);

@@ -1,4 +1,6 @@
-﻿namespace AOKMovieLibrary.Frontend.Pages;
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace AOKMovieLibrary.Frontend.Pages;
 
 public partial class MovieDetails
 {
@@ -14,7 +16,7 @@ public partial class MovieDetails
     private UpdateMovieCommand _movieDetails;
     private IEnumerable<string> GenreOptions => Enum.GetNames<MovieGenre>();
     private IEnumerable<PersonMetaData> AvailableDirectors = [];
-    
+
     private string SelectedGenre
     {
         get => _movieDetails.Genre.ToString();
@@ -31,7 +33,8 @@ public partial class MovieDetails
             Description = detailData.Description,
             Genre = detailData.Genre,
             DirectorId = detailData.Director.Id,
-            Actors = detailData.Actors.Select(a => a.Id).ToList()
+            Actors = detailData.Actors.Select(a => a.Id).ToList(),
+            RowVersion = detailData.RowVersion
         };
 
         AvailableDirectors = (await _personService.GetPersonsAsync()).Select(person => new PersonMetaData
@@ -60,9 +63,16 @@ public partial class MovieDetails
 
     private async Task OnUpdateMovie()
     {
-        await _movieService.UpdateMovieAsync(_movieDetails);
-        StateHasChanged();
-        NavigationManager.NavigateTo("/movies");
+        try
+        {
+            await _movieService.UpdateMovieAsync(_movieDetails);
+            StateHasChanged();
+            NavigationManager.NavigateTo("/movies");
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
     }
 
     private void GoBack()

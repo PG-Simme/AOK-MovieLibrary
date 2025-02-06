@@ -19,6 +19,8 @@ public class UpdateMovieCommand
     public int Runtime { get; set; }
 
     public string? Description { get; set; }
+
+    public byte[] RowVersion { get; set; }
 }
 
 public static class UpdateMovieCommandMapping
@@ -32,7 +34,8 @@ public static class UpdateMovieCommandMapping
             Genre = command.Genre,
             Year = command.Year,
             Runtime = command.Runtime,
-            Description = command.Description
+            Description = command.Description,
+            RowVersion = command.RowVersion
         };
     }
 }

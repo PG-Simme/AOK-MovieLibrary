@@ -8,6 +8,8 @@ public record PersonMetaData
 
     public string Lastname { get; set; }
 
+    public byte[] RowVersion { get; set; }
+
     public override string ToString()
     {
         return $"{Firstname} {Lastname}";
@@ -22,7 +24,8 @@ public static class PersonMetaDataMapping
         {
             Id = person.Id,
             Firstname = person.Firstname,
-            Lastname = person.Lastname
+            Lastname = person.Lastname,
+            RowVersion = person.RowVersion
         };
     }
 }

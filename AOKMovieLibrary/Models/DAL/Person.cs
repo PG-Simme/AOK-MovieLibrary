@@ -8,6 +8,9 @@ public class Person
 
     public string Lastname { get; set; }
 
+    [Timestamp]
+    public byte[] RowVersion { get; set; }
+
     public override string ToString()
     {
         return $"{Firstname} {Lastname}";
