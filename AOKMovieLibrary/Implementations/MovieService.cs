@@ -5,10 +5,12 @@ namespace AOKMovieLibrary.Implementations;
 public class MovieService : IMovieService
 {
     private readonly IDbContextFactory<MovieContext> _contextFactory;
+    private readonly MovieContext _context;
 
     public MovieService(IPersonService personService, IDbContextFactory<MovieContext> contextFactory)
     {
         _contextFactory = contextFactory;
+        _context = contextFactory.CreateDbContext();
     }
 
     public void SeedData(IEnumerable<Movie> movies)
@@ -68,36 +70,28 @@ public class MovieService : IMovieService
     {
         Movie newMovie = movie.MapToMovie();
 
-        try
+        using var context = _contextFactory.CreateDbContext();
+
+        var director = await context.Persons.FirstOrDefaultAsync(p => p.Id == movie.DirectorId);
+        if (director == null)
         {
-            using var context = _contextFactory.CreateDbContext();
-
-            var director = await context.Persons.FirstOrDefaultAsync(p => p.Id == movie.DirectorId);
-            if (director == null)
-            {
-                throw new InvalidOperationException($"Director with id {movie.DirectorId} not found");
-            }
-
-            newMovie.Director = director;
-            newMovie.DirectorId = director.Id;
-
-            var actors = await context.Persons.Where(p => movie.Actors.Contains(p.Id)).ToListAsync();
-            if (actors.Count != movie.Actors.Count)
-            {
-                throw new InvalidOperationException("One or more actors not found");
-            }
-
-            newMovie.Actors = actors;
-
-            context.Movies.Add(newMovie);
-            await context.SaveChangesAsync();
-            return newMovie;
+            throw new InvalidOperationException($"Director with id {movie.DirectorId} not found");
         }
-        catch (Exception ex)
+
+        newMovie.Director = director;
+        newMovie.DirectorId = director.Id;
+
+        var actors = await context.Persons.Where(p => movie.Actors.Contains(p.Id)).ToListAsync();
+        if (actors.Count != movie.Actors.Count)
         {
-            Console.WriteLine(ex.Message);
-            return null;
+            throw new InvalidOperationException("One or more actors not found");
         }
+
+        newMovie.Actors = actors;
+
+        context.Movies.Add(newMovie);
+        await context.SaveChangesAsync();
+        return newMovie;
     }
 
     public async Task<Movie> UpdateMovieAsync(Movie movie)

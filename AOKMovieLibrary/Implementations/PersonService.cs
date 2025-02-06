@@ -6,10 +6,12 @@ namespace AOKMovieLibrary.Implementations;
 public class PersonService : IPersonService
 {
     private readonly IDbContextFactory<MovieContext> _contextFactory;
+    private readonly MovieContext _context;
 
     public PersonService(IDbContextFactory<MovieContext> contextFactory)
     {
         _contextFactory = contextFactory;
+        _context = contextFactory.CreateDbContext();
     }
 
     public void SeedData(IEnumerable<Person> persons)
