@@ -94,7 +94,7 @@ public class MovieService : IMovieService
         return newMovie;
     }
 
-    public async Task<Movie> UpdateMovieAsync(Movie movie)
+    public async Task<MovieDetailData> UpdateMovieAsync(UpdateMovieCommand movie)
     {
         using var context = _contextFactory.CreateDbContext();
         var existingMovie = context.Movies.FirstOrDefault(m => m.Id == movie.Id);
@@ -107,17 +107,24 @@ public class MovieService : IMovieService
         existingMovie.Title = movie.Title;
         existingMovie.Genre = movie.Genre;
         existingMovie.Year = movie.Year;
-        existingMovie.Director = movie.Director;
-        existingMovie.Actors = movie.Actors;
         existingMovie.Description = movie.Description;
         existingMovie.Runtime = movie.Runtime;
 
         // alternative way to update entity
         //context.Entry(existingMovie).CurrentValues.SetValues(movie);
 
+        var director = await context.Persons.FirstOrDefaultAsync(p => p.Id == movie.DirectorId);
+        if (director == null)
+        {
+            throw new InvalidOperationException($"Director with id {movie.DirectorId} not found");
+        }
+
+        existingMovie.DirectorId = movie.DirectorId;
+        existingMovie.Actors = await context.Persons.Where(p => movie.Actors.Contains(p.Id)).ToListAsync();
+
         await context.SaveChangesAsync();
 
-        return existingMovie;
+        return existingMovie.MapToMovieDetails();
     }
 
     public async Task DeleteMovieAsync(int id)

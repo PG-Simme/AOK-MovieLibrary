@@ -5,6 +5,7 @@
     <div class="details">
         <h5>@Movie.Title (@Movie.Year)</h5>
         <p>@string.Join(", ", Movie.Genre)</p>
+        <p>@Movie.Director.ToString()</p>
         <p>@Movie.Runtime min</p>
     </div>
     <div class="actions">

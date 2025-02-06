@@ -6,19 +6,46 @@
 {
     <div class="card" style="margin: 20px; padding: 20px;">
         <h1>@_movieDetails.Title</h1>
-        <LabeledDisplay Label="Genre" Value="@_movieDetails.Genre.ToString()" />
-        <LabeledDisplay Label="Year" Value="@_movieDetails.Year.ToString()" />
-        <LabeledDisplay Label="Director" Value="@_movieDetails.Director.ToString()" />
-        <LabeledDisplay Label="Runtime" Value="@(_movieDetails.Runtime.ToString() + " minutes")" />
-        <h3>Actors:</h3>
-        <ul>
-            @foreach (var actor in _movieDetails.Actors)
-            {
-                <li>@actor</li>
-            }
-        </ul>
-        <LabeledDisplay Label="Description" Value="@_movieDetails.Description" />
-        <button class="btn btn-secondary" @onclick="GoBack">Back to List</button>
+        <EditForm Model="_movieDetails" OnValidSubmit="OnUpdateMovie">
+            <DataAnnotationsValidator />
+            @* <FluentValidationValidator /> *@
+            <ValidationSummary />
+
+            <label class="form-label">Title (*)</label>
+            <InputText class="form-control" @bind-Value="_movieDetails.Title" />
+            <ValidationMessage For="@(() => _movieDetails.Title)" />
+
+            <label class="form-label">Genre</label>
+            <InputSelect class="form-control" @bind-Value="_movieDetails.Genre">
+                @foreach (var genre in Enum.GetNames<MovieGenre>())
+                {
+                    <option value="@genre">@genre</option>
+                }
+            </InputSelect>
+
+            <label class="form-label">Year</label>
+            <InputNumber class="form-control" @bind-Value="_movieDetails.Year" />
+            <ValidationMessage For="@(() => _movieDetails.Year)" />
+
+            <label class="form-label">Director</label>
+            <InputSelect class="form-control" @bind-Value="SelectedDirectorId" @onchange="OnDirectorChanged">
+                @foreach (var director in AvailableDirectors)
+                {
+                    <option value="@director.Id">@director</option>
+                }
+            </InputSelect>
+
+            <label class="form-label">Runtime (minutes)</label>
+            <InputNumber class="form-control" @bind-Value="_movieDetails.Runtime" />
+            <ValidationMessage For="@(() => _movieDetails.Runtime)" />
+
+            <label class="form-label">Description</label>
+            <InputText class="form-control" @bind-Value="_movieDetails.Description" />
+            <ValidationMessage For="@(() => _movieDetails.Description)" />
+
+            <button type="submit" class="btn btn-success">Update Movie</button>
+            <button type="button" class="btn btn-secondary" @onclick="GoBack">Back to List</button>
+        </EditForm>
     </div>
 }
 else

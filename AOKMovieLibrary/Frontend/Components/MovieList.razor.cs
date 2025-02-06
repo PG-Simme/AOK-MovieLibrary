@@ -12,7 +12,7 @@ public partial class MovieList
 
     protected override async Task OnInitializedAsync()
     {
-        Movies = (await _movieService.GetMoviesAsync()).Select(movie => movie.MapToMovieOverview()).ToList();
+        Movies = (await _movieService.GetMoviesForOverviewAsync());
     }
 
     private List<MovieOverviewData> FilteredMovies()

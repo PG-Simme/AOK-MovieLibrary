@@ -14,7 +14,7 @@ public interface IMovieService
 
     Task<Movie> CreateMovieAsync(CreateMovieCommand movie);
 
-    Task<Movie> UpdateMovieAsync(Movie movie);
+    Task<MovieDetailData> UpdateMovieAsync(UpdateMovieCommand movie);
 
     Task DeleteMovieAsync(int id);
 }
