@@ -1,4 +1,5 @@
 using AOKMovieLibrary.Frontend;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,22 @@ builder.Services.AddDbContextFactory<MovieContext>(options =>
         "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=\"AOK MovieLibrary\";Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False",
         o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
 });
+
+// configure cookie authentication
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.Strict;
+        options.Cookie.IsEssential = true;
+        options.Cookie.Name = "AOKMovieLibrary";
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+        options.SlidingExpiration = true;
+    });
+
+builder.Services.AddAuthorization();
+builder.Services.AddHttpContextAccessor();
 
 // Add services to the container from the library project
 builder.Services.AddLibraryServices();
@@ -31,6 +48,9 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();

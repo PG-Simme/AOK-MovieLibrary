@@ -17,6 +17,8 @@ public class MovieContext : DbContext
 
     public DbSet<Person> Persons { get; set; }
 
+    public DbSet<User> Users { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
     }
@@ -70,6 +72,18 @@ public class MovieContext : DbContext
             entity.HasMany(e => e.Actors)
                   .WithMany()
                   .UsingEntity(j => j.ToTable("MovieActors"));
+        });
+
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Username).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.PasswordHash).IsRequired().HasMaxLength(64);
+            entity.Property(e => e.Email).HasMaxLength(50);
+            entity.Property(e => e.Firstname).HasMaxLength(50);
+            entity.Property(e => e.Lastname).HasMaxLength(50);
+            entity.Property(e => e.RowVersion).IsRowVersion();
+            entity.HasIndex(e => e.Username).IsUnique();
         });
     }
 }

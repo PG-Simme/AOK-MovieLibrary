@@ -7,6 +7,7 @@ public static class LibraryExtensions
         // Add services here
         services.AddScoped<IMovieService, MovieService>();
         services.AddScoped<IPersonService, PersonService>();
+        services.AddScoped<IAuthorizationService, AuthorizationService>();
 
         services.AddScoped<MovieStateService>();
 
