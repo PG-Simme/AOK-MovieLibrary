@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.EntityFrameworkCore;
 
 namespace AOKMovieLibrary.Implementations;
 
@@ -6,11 +7,16 @@ public class MovieService : IMovieService
 {
     private readonly IDbContextFactory<MovieContext> _contextFactory;
     private readonly MovieContext _context;
+    private HubConnection _hubConnection;
 
     public MovieService(IPersonService personService, IDbContextFactory<MovieContext> contextFactory)
     {
         _contextFactory = contextFactory;
         _context = contextFactory.CreateDbContext();
+
+        _hubConnection = new HubConnectionBuilder()
+            .WithUrl("https://localhost:7108/moviehub")
+            .Build();
     }
 
     public void SeedData(IEnumerable<Movie> movies)
@@ -28,12 +34,21 @@ public class MovieService : IMovieService
 
     public async Task<List<MovieOverviewData>> GetMoviesForOverviewAsync()
     {
-        using var context = _contextFactory.CreateDbContext();
-        var movies = await context.Movies.Include(m => m.Director)
-                                         .Include(m => m.Actors)
-                                         .ToListAsync();
+        List<MovieOverviewData> movies = [];
 
-        return movies.Select(m => m.MapToMovieOverview()).ToList();
+        _hubConnection.On<List<MovieOverviewData>>("ReceiveMovies", (data) =>
+        {
+            movies = data;
+        });
+
+        if (_hubConnection.State == HubConnectionState.Disconnected)
+        {
+            await _hubConnection.StartAsync();
+        }
+
+        await _hubConnection.InvokeAsync("GetMovies");
+
+        return movies;
     }
 
     public async Task<Movie> GetMovieAsync(int id)
@@ -53,91 +68,60 @@ public class MovieService : IMovieService
 
     public async Task<MovieDetailData> GetMovieDetailsAsync(int id)
     {
-        using var context = _contextFactory.CreateDbContext();
-        var movie = await context.Movies.Include(m => m.Director)
-                                         .Include(m => m.Actors)
-                                         .FirstOrDefaultAsync(m => m.Id == id);
+        MovieDetailData movie = new();
 
-        if (movie == null)
+        _hubConnection.On<MovieDetailData>("ReceiveMovieDetails", (data) =>
         {
-            throw new InvalidOperationException($"Movie with id {id} not found");
+            movie = data;
+        });
+
+        if (_hubConnection.State == HubConnectionState.Disconnected)
+        {
+            await _hubConnection.StartAsync();
         }
 
-        return movie.MapToMovieDetails();
+        await _hubConnection.InvokeAsync("GetMovieDetails", id);
+
+        return movie;
     }
 
-    public async Task<Movie> CreateMovieAsync(CreateMovieCommand movie)
+    public async Task CreateMovieAsync(CreateMovieCommand movie)
     {
-        Movie newMovie = movie.MapToMovie();
+        _hubConnection.On<Movie>("ReceiveCreateMovieResult", (data) => { });
 
-        using var context = _contextFactory.CreateDbContext();
-
-        var director = await context.Persons.FirstOrDefaultAsync(p => p.Id == movie.DirectorId);
-        if (director == null)
+        if (_hubConnection.State == HubConnectionState.Disconnected)
         {
-            throw new InvalidOperationException($"Director with id {movie.DirectorId} not found");
+            await _hubConnection.StartAsync();
         }
 
-        newMovie.Director = director;
-        newMovie.DirectorId = director.Id;
-
-        var actors = await context.Persons.Where(p => movie.Actors.Contains(p.Id)).ToListAsync();
-        if (actors.Count != movie.Actors.Count)
-        {
-            throw new InvalidOperationException("One or more actors not found");
-        }
-
-        newMovie.Actors = actors;
-
-        context.Movies.Add(newMovie);
-        await context.SaveChangesAsync();
-        return newMovie;
+        await _hubConnection.InvokeAsync("CreateMovie", movie);
     }
 
-    public async Task<MovieDetailData> UpdateMovieAsync(UpdateMovieCommand movie)
+    public async Task<MovieDetailData> UpdateMovieAsync(UpdateMovieCommand updateMovieCommand)
     {
-        using var context = _contextFactory.CreateDbContext();
-        using var transaction = await context.Database.BeginTransactionAsync();
+        MovieDetailData movie = new();
 
-        var existingMovie = await context.Movies.FirstOrDefaultAsync(m => m.Id == movie.Id);
+        _hubConnection.On<MovieDetailData>("ReceiveUpdateMovieResult", (data) => movie = data);
 
-        if (existingMovie == null)
+        if (_hubConnection.State == HubConnectionState.Disconnected)
         {
-            throw new InvalidOperationException($"Movie with id {movie.Id} not found");
+            await _hubConnection.StartAsync();
         }
 
-        existingMovie.Title = movie.Title;
-        existingMovie.Genre = movie.Genre;
-        existingMovie.Year = movie.Year;
-        existingMovie.Description = movie.Description;
-        existingMovie.Runtime = movie.Runtime;
+        await _hubConnection.InvokeAsync("UpdateMovie", updateMovieCommand);
 
-        context.Entry(existingMovie).Property(m => m.RowVersion).OriginalValue = movie.RowVersion;
-
-        var director = await context.Persons.FirstOrDefaultAsync(p => p.Id == movie.DirectorId);
-        if (director == null)
-        {
-            throw new InvalidOperationException($"Director with id {movie.DirectorId} not found");
-        }
-
-        existingMovie.DirectorId = movie.DirectorId;
-        existingMovie.Actors = await context.Persons.Where(p => movie.Actors.Contains(p.Id)).ToListAsync();
-
-        context.Update(existingMovie);
-        await context.SaveChangesAsync();
-
-        await transaction.CommitAsync();
-
-        return existingMovie.MapToMovieDetails();
+        return movie;
     }
 
     public async Task DeleteMovieAsync(int id)
     {
-        using var context = _contextFactory.CreateDbContext();
-        var movie = await context.Movies.FirstOrDefaultAsync(m => m.Id == id);
-        if (movie != null)
+        _hubConnection.On("ReceiveDeleteMovieResult", () => { });
+
+        if (_hubConnection.State == HubConnectionState.Disconnected)
         {
-            context.Movies.Remove(movie);
+            await _hubConnection.StartAsync();
         }
+
+        await _hubConnection.InvokeAsync("DeleteMovie", id);
     }
 }
