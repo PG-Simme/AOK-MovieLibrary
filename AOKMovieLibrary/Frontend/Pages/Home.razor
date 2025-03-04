@@ -5,3 +5,12 @@
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
+
+<AuthorizeView>
+    <Authorized>
+        Hello @context.User.Identity.Name!
+    </Authorized>
+    <NotAuthorized>
+        <a href="Account/login">Log in</a>
+    </NotAuthorized>
+</AuthorizeView>
