@@ -38,6 +38,7 @@ public class AuthorizationService : IAuthorizationService
 
         return true;
     }
+
     public async Task<bool> LoginAsync(LoginCommand command)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == command.Username);
@@ -48,7 +49,7 @@ public class AuthorizationService : IAuthorizationService
         if (!isValid)
             return false;
 
-        // Benutzer ist authentifiziert, Claims erstellen
+        //Benutzer ist authentifiziert, Claims erstellen
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.Name, user.Username),
@@ -59,8 +60,10 @@ public class AuthorizationService : IAuthorizationService
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         await _httpContextAccessor.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
+
         return true;
     }
+
     public async Task LogoutAsync()
     {
         await _httpContextAccessor.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

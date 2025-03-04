@@ -1,0 +1,23 @@
+﻿@layout AccountLayout
+@page "/Account/login"
+
+<h1>Login</h1>
+
+<EditForm Model="LoginCommand" FormName="login" method="post" OnValidSubmit="HandleLogin">
+    <DataAnnotationsValidator />
+    @* <FluentValidationValidator /> *@
+    <ValidationSummary />
+    <p>@_message</p>
+
+    <label class="form-label">Username</label>
+    <InputText class="form-control" @bind-Value="LoginCommand.Username" />
+    <ValidationMessage For="@(() => LoginCommand.Username)" />
+
+    <label class="form-label">Password</label>
+    <InputText class="form-control" @bind-Value="LoginCommand.Password" />
+    <ValidationMessage For="@(() => LoginCommand.Password)" />
+
+    <p><button type="submit" class="btn btn-success">Login</button></p>
+
+    <p>Not registered yet? - Click <a href="/register">here</a></p>
+</EditForm>

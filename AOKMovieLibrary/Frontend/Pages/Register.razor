@@ -1,0 +1,20 @@
+﻿@page "/register"
+
+<h1>Register</h1>
+
+<EditForm Model="_registerCommand" OnValidSubmit="HandleRegister">
+    <DataAnnotationsValidator />
+    @* <FluentValidationValidator /> *@
+    <ValidationSummary />
+    <p>@_message</p>
+
+    <label class="form-label">Username</label>
+    <InputText class="form-control" @bind-Value="_registerCommand.Username" />
+    <ValidationMessage For="@(() => _registerCommand.Username)" />
+
+    <label class="form-label">Password</label>
+    <InputText class="form-control" @bind-Value="_registerCommand.Password" />
+    <ValidationMessage For="@(() => _registerCommand.Password)" />
+
+    <button type="submit" class="btn btn-success">Register</button>
+</EditForm>
